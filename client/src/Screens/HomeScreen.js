@@ -1,5 +1,6 @@
-import {post} from "../Components/response";
-
+import { post } from "../Components/response";
+import { ImageSlider } from "react-native-image-slider-banner";
+import PhotoAlbum from "react-photo-album";
 import React, { useEffect, useState } from 'react';
 import "react-native-gesture-handler";
 import {
@@ -49,59 +50,97 @@ const images = [
   // require('../img/'),          // Local image
 ];
 function Home({ navigation }) {
-  // const [loading,setLoading] = useState() 
+
   const [dataPost, setDataPost] = useState([]);
   const [dataPost2, setDataPos2] = useState([]);
-
   const [pageNumber, setPagetNumber] = useState(1);
-
-  function onPressLearnMore  (getPage){
+  const [linkItem, setLinkItem] = useState({})
+  function onPressLearnMore(getPage) {
     console.log(getPage)
+    // if (getPage != pageNumber) {
     setPagetNumber(getPage);
     getData();
-    getDataPost();
+    // }
+
+    // getDataPost();
   }
   // *********************Server MySQL******************//
   // lấy data Bài đăng and data userAccout
   const getDataPost = async () => {
     try {
-      const response = await fetch('http://'+post+'/post/');
+      const response = await fetch('http://' + post + '/post/');
 
       const json = await response.json();
-      console.log("json")
- 
+
       setDataPost(json);
 
     } catch (error) {
       // console.error(error);
     } finally {
-      setLoading(false);
+
     }
   }
 
   // khi chạy xong giao diện thì bắt đầu load dữ liệu Bài đăng
   useEffect(() => {
     getDataPost();
+    // getData();
 
-    
   }, []);
   const getData = async () => {
+
     try {
-      const response = await fetch('http://'+post+'/trang/' + pageNumber);
+      const response = await fetch('http://' + post + '/trangaccount/' + pageNumber);
       const json = await response.json();
       setDataPos2(json);
-   
+
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+
     }
   }
 
   useEffect(() => {
     getData();
-    console.log(dataPost.length+"ádf");
+
   }, []);
+
+  // phần trang
+
+  let coutPost = [];
+  let dem = 0;
+  let sum = 0;
+  for (let i = 0; i < dataPost.length; i++) {
+    dem = dem + 1;
+    if (dem == 4) {
+      sum = sum + 1;
+      dem = 0;
+      var sumObj = { item: sum }
+      coutPost.push(sumObj)
+    }
+  }
+  if (dem > 0) {
+    sum = sum + 1;
+    dem = 0;
+    var sumObj = { item: sum }
+    coutPost.push(sumObj)
+  }
+
+
+  // đếm mảng lấy tổng giá trị số phẩn tử = 5
+
+  // tạo biến đếm đếm bằng 0;
+  // tạo biến cout bằng 0;
+  // kiểm tra vòng đếm từ 1  = "vòng 1 cout + 1 , set đếm = 0", vòng 2 cout  không đủ 4 không set đếm 
+  // khi số lượng đủ 4 thì cout cộng 1 set ngược lại đếm bằng 0 
+
+
+  // thoát khỏi vòng for
+  // trường hợp khi chưa chạy hết đủ cout for số lượng bằng 4 thì giá trị của biến đếm chưa set bằng 0
+  // khi đó check nếu như biếm đếm lớn hơn 0 thì set cout + 1
+
+
   return (
     <View style={Styles.container}>
       <ImageBackground
@@ -237,11 +276,11 @@ function Home({ navigation }) {
                 data={dataPost}
                 keyExtractor={({ id }, index) => id}
                 renderItem={({ item }) => (
-                  <View style={Styles.containerItemListPost}>
+                  <View key={item.id} style={Styles.containerItemListPost}>
                     <View style={Styles.itemImgPost}>
                       <Image
                         source={{
-                          uri: `${item.imgPost}`,
+                          uri: `${"http://" + post + "/uploads/" + item.listImgFolder[0].nameImg + ""}`,
                         }}
                         style={{
                           borderTopLeftRadius: 13,
@@ -403,7 +442,7 @@ function Home({ navigation }) {
                     <View style={Styles.itemImgPost}>
                       <Image
                         source={{
-                          uri: `${item.imgPost}`,
+                          uri: `${"http://" + post + "/uploads/" + item.listImgFolder[0].nameImg + ""}`,
                         }}
                         style={{
                           borderTopLeftRadius: 13,
@@ -556,267 +595,283 @@ function Home({ navigation }) {
               <FlatList
                 data={dataPost2}
                 keyExtractor={({ id }, index) => id}
-                renderItem={({ item }) => (
+                renderItem={({ item }) => {
+                  // lấy tên ảnh rồi gán vào đường giẫn
+                  // pust vào arrList
+                  // setLinkItem('')
+                  var arrListImgItem = [];
+                  item.listImgFolder.map((itemImg) => {
 
-                  <View View style={Styles.containerItemListPostVertical}>
-                    <View style={Styles.itemImgPostVertical}>
-                      <Image
-                        source={{
-                          uri: `${item.imgPost}`,
-                        }}
-                        style={{
-                          borderTopLeftRadius: 13,
-                          borderTopRightRadius: 13,
-                          height: "100%",
-                          width: "100%",
-                        }}
-                      />
-                      <View
-                        style={{
-                          padding: 10,
-                          alignSelf: "flex-end",
-                          position: "absolute",
-                        }}
-                      >
-                        <TouchableOpacity
-                          style={{
-                            margin: 5,
-                            borderRadius: 100,
-                            padding: 5,
-                            opacity: 0.5,
-                          }}
-                        >
-                          <MaterialCommunityIcons
-                            name="dots-vertical"
-                            size={24}
-                            color="white"
+                    var linkImg = { img: "http://" + post + "/uploads/" + itemImg.nameImg + "" }
+                    arrListImgItem.push(linkImg)
+                  })
+                  return (
+
+                    <View View style={Styles.containerItemListPostVertical}>
+                      <View style={Styles.itemImgPostVertical}>
+                        <View style={{ flexDirection: "column", position: "relative" }}>
+                          <Image
+                            source={{
+                              uri: `${"http://" + post + "/uploads/" + item.listImgFolder[0].nameImg + ""
+                                }`,
+                            }}
+                            blurRadius={50}
+                            style={{
+                              borderTopLeftRadius: 13,
+                              borderTopRightRadius: 13,
+                              backgroundColor: "black",
+                              width: "100%"
+                              , height: "100%",
+
+                            }}
                           />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    <View style={Styles.itemInfor}>
-                      <View style={Styles.itemTitleVertical}>
+                          <View style={{ position: "absolute", paddingTop: 10, height: "100%" }}>
+                            <ImageSlider
+                              data={arrListImgItem}
+                              autoPlay={false}
+                              // onItemChanged={(item) =>}
+                              closeIconColor="#fff"
+
+
+                            />
+                          </View>
+
+                        </View>
                         <View
                           style={{
-                            flex: 3,
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
+                            padding: 10,
+                            alignSelf: "flex-end",
+                            position: "absolute",
                           }}
                         >
+                          <TouchableOpacity
+                            style={{
+                              margin: 5,
+                              borderRadius: 100,
+                              padding: 5,
+                              opacity: 0.5,
+                            }}
+                          >
+                            <MaterialCommunityIcons
+                              name="dots-vertical"
+                              size={24}
+                              color="white"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      <View style={Styles.itemInfor}>
+                        <View style={Styles.itemTitleVertical}>
                           <View
                             style={{
+                              flex: 3,
                               flexDirection: "row",
-                              borderRadius: 100,
+                              justifyContent: "center",
                               alignItems: "center",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                borderRadius: 100,
+                                alignItems: "center",
+                                flex: 1,
+                                paddingLeft: 5,
+                                paddingRight: 5,
+                              }}
+                            >
+                              <Image
+                                style={{
+                                  borderColor: "gray",
+                                  borderWidth: 1,
+                                  borderRadius: 100,
+                                  height: 40,
+                                  width: 50,
+                                }}
+                                resizeMode="cover"
+                                source={{
+                                  uri:
+                                    "https://www.malemodelscene.net/wp-content/uploads/2022/01/Simon-Nessman-Massimo-Dutti-Winter-2022-00-364x205.jpg",
+                                }}
+                              />
+                              <View
+                                style={{ flexDirection: "column", marginLeft: 5 }}
+                              >
+                                <Text>Hiếu Trung</Text>
+                                <View
+                                  style={{
+                                    alignItems: "center",
+                                    flexDirection: "row",
+                                  }}
+                                >
+                                  <Text>1 giờ .</Text>
+                                  <Ionicons
+                                    name="ios-earth"
+                                    size={17}
+                                    color="black"
+                                  />
+                                </View>
+                              </View>
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flex: 2,
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <View
+                              style={{ flex: 4, paddingLeft: 5, paddingRight: 5 }}
+                            >
+                              <Text style={[Styles.h2, Styles.fontWeightBold]}>
+                                {item.title}
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flex: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <TouchableOpacity>
+                                <Ionicons
+                                  name="ios-bookmark-outline"
+                                  size={24}
+                                  color="black"
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                          <View
+                            style={{
                               flex: 1,
+                              flexDirection: "row",
                               paddingLeft: 5,
                               paddingRight: 5,
                             }}
                           >
-                            <Image
-                              style={{
-                                borderColor: "gray",
-                                borderWidth: 1,
-                                borderRadius: 100,
-                                height: 40,
-                                width: 50,
-                              }}
-                              resizeMode="cover"
-                              source={{
-                                uri:
-                                  "https://www.malemodelscene.net/wp-content/uploads/2022/01/Simon-Nessman-Massimo-Dutti-Winter-2022-00-364x205.jpg",
-                              }}
-                            />
+                            <View style={{ flex: 3, alignSelf: "center" }}>
+                              <Text style={[Styles.h4, { color: "gray" }]}>
+                                {item.location}- {item.keySearch}
+                              </Text>
+                            </View>
                             <View
-                              style={{ flexDirection: "column", marginLeft: 5 }}
+                              style={{
+                                flexDirection: "row",
+                                flex: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
                             >
-                              <Text>Hiếu Trung</Text>
-                              <View
-                                style={{
-                                  alignItems: "center",
-                                  flexDirection: "row",
-                                }}
+                              <AntDesign name="star" size={15} color="red" />
+                              <Text style={[Styles.h4, { marginLeft: 2 }]}>4.7</Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                flex: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <FontAwesome5
+                                name="location-arrow"
+                                size={14}
+                                color="gray"
+                              />
+
+                              <Text
+                                style={[Styles.h4, { marginLeft: 2, color: "gray" }]}
                               >
-                                <Text>1 giờ .</Text>
-                                <Ionicons
-                                  name="ios-earth"
-                                  size={17}
-                                  color="black"
-                                />
-                              </View>
+                                30 km
+                              </Text>
                             </View>
                           </View>
                         </View>
-                        <View
-                          style={{
-                            flex: 2,
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <View
-                            style={{ flex: 4, paddingLeft: 5, paddingRight: 5 }}
-                          >
-                            <Text style={[Styles.h2, Styles.fontWeightBold]}>
-                              {item.title}
-                            </Text>
-                          </View>
-                          <View
+                        <View style={Styles.itemActive}>
+                          <TouchableOpacity
                             style={{
                               flex: 1,
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <TouchableOpacity>
-                              <Ionicons
-                                name="ios-bookmark-outline"
-                                size={24}
-                                color="black"
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            paddingLeft: 5,
-                            paddingRight: 5,
-                          }}
-                        >
-                          <View style={{ flex: 3, alignSelf: "center" }}>
-                            <Text style={[Styles.h4, { color: "gray" }]}>
-                              {item.location}- {item.keySearch}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
                               flexDirection: "row",
-                              flex: 1,
                               justifyContent: "center",
                               alignItems: "center",
                             }}
                           >
-                            <AntDesign name="star" size={15} color="red" />
-                            <Text style={[Styles.h4, { marginLeft: 2 }]}>4.7</Text>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              flex: 1,
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <FontAwesome5
-                              name="location-arrow"
-                              size={14}
-                              color="gray"
+                            <AntDesign
+                              name="heart"
+                              size={15}
+                              color="black"
+                              style={{ marginRight: 3 }}
                             />
-
-                            <Text
-                              style={[Styles.h4, { marginLeft: 2, color: "gray" }]}
-                            >
-                              30 km
-                            </Text>
-                          </View>
+                            <Text style={[Styles.h3]}>Thích</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              flex: 1,
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <MaterialCommunityIcons
+                              name="comment"
+                              size={15}
+                              color="black"
+                              style={{ marginRight: 3 }}
+                            />
+                            <Text style={[Styles.h3]}>Bình luận</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              flex: 1,
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Ionicons
+                              name="share-social-sharp"
+                              size={15}
+                              color="black"
+                              style={{ marginRight: 3 }}
+                            />
+                            <Text style={[Styles.h3]}>Chia sẻ</Text>
+                          </TouchableOpacity>
                         </View>
-                      </View>
-                      <View style={Styles.itemActive}>
-                        <TouchableOpacity
-                          style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <AntDesign
-                            name="heart"
-                            size={15}
-                            color="black"
-                            style={{ marginRight: 3 }}
-                          />
-                          <Text style={[Styles.h3]}>Thích</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <MaterialCommunityIcons
-                            name="comment"
-                            size={15}
-                            color="black"
-                            style={{ marginRight: 3 }}
-                          />
-                          <Text style={[Styles.h3]}>Bình luận</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Ionicons
-                            name="share-social-sharp"
-                            size={15}
-                            color="black"
-                            style={{ marginRight: 3 }}
-                          />
-                          <Text style={[Styles.h3]}>Chia sẻ</Text>
-                        </TouchableOpacity>
                       </View>
                     </View>
-                  </View>
-                )} />
+                  )
+                }
+
+
+                } />
 
 
             </View>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "center" }}>
-              <TouchableOpacity
-                style={{ height: 30, width: 30, margin: 10, padding: 3, borderRadius: 10, borderWidth: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center", }}
-                onPress={() => onPressLearnMore(1)}
-                title="Trang 1"
-                backgroundColor="#841584"
-    
-              >
-                <Text>1</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ height: 30, width: 30, margin: 10, padding: 3, borderRadius: 10, borderWidth: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center", }}
-                onPress={() => onPressLearnMore(2)}
-                title="Trang 2"
-                backgroundColor="#841584"
+              {
 
-              >
-                <Text>2</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ height: 30, width: 30, margin: 10, padding: 3, borderRadius: 10, borderWidth: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center", }}
-                onPress={() => onPressLearnMore(3)}
-            
-                backgroundColor="#841584"
+                coutPost.map((item) => {
+                  var colors = item.item == pageNumber ? '#AA495B' : '#000000'
+                  return (
+                    <TouchableOpacity
+                      style={{ height: 30, width: 30, margin: 5, padding: 3, borderRadius: 10, borderWidth: 1,borderColor: colors, backgroundColor: 'white', justifyContent: "center", alignItems: "center", }}
+                      onPress={() => onPressLearnMore(item.item)}
+                      title={'Trang ' + item.item + ''}
+                      backgroundColor="#841584"
 
-              >
-                <Text>3</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ height: 30, width: 30, margin: 10, padding: 3, borderRadius: 10, borderWidth: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center", }}
-                onPress={() => onPressLearnMore(4)}    
-                backgroundColor="#841584"
-              >
-                <Text>4</Text>
-              </TouchableOpacity>
+                    >
+                      <Text style={{color: colors
+                      }}>{item.item}</Text>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+
             </View>
           </View>
 

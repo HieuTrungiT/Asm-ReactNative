@@ -33,6 +33,7 @@
     "react-native-fast-image": "^8.5.11",
     "react-native-gesture-handler": "^2.2.0",
     "react-native-image-slider": "^2.0.3",
+    "react-native-image-slider-banner": "^1.0.2",
     "react-native-image-slider-box": "^1.1.17",
     "react-native-paper": "^4.11.2",
     "react-native-reanimated": "^2.4.1",
@@ -42,7 +43,8 @@
     "react-native-slideshow": "^1.0.1",
     "react-native-svg": "^12.3.0",
     "react-native-vector-icons": "^9.1.0",
-    "react-native-web": "0.17.1"
+    "react-native-web": "0.17.1",
+    "react-photo-album": "^1.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

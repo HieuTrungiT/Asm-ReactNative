@@ -1,1 +1,1 @@
-export const post = '192.168.1.83:3000';
+export const post = '10.22.194.60:3030';
