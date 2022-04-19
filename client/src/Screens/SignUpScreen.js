@@ -1,4 +1,5 @@
 // In App.js in a new project
+
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
